@@ -16,7 +16,10 @@ Class ApiClient {
     protected $response;
     protected $error;
     protected $logger;
-    protected $path_logs;
+    protected $log_error;
+    protected $path_log_error;
+    protected $log_info;
+    protected $path_log_info;
 
     public function __construct($options = []){
         $this->client           = new Client([
@@ -30,7 +33,10 @@ Class ApiClient {
         $this->api_url          = array_key_exists('api_url', $options) ? $options['api_url'] : 'https://app.thebraindata.com/api';
         $this->access_token     = array_key_exists('access_token', $options) ? $options['access_token'] : null;
         $this->refresh_token    = array_key_exists('refresh_token', $options) ? $options['refresh_token'] : null;
-        $this->path_logs        = array_key_exists('path_logs', $options) ? $options['path_logs'] : null;
+        $this->log_error        = array_key_exists('log_error', $options) ? $options['log_error'] : true;
+        $this->path_log_error   = array_key_exists('path_log_error', $options) ? $options['path_log_error'] : null;
+        $this->log_info         = array_key_exists('log_info', $options) ? $options['log_info'] : false;
+        $this->path_log_info    = array_key_exists('path_log_info', $options) ? $options['path_log_info'] : null;
     }
 
     public function errorHandler(){
@@ -70,12 +76,20 @@ Class ApiClient {
         $this->refresh_token    = $refresh_token;
     }
 
-    public function getPathLogs(){
-        return $this->path_logs;
+    public function getPathLogError(){
+        return $this->path_log_error;
     }
 
-    public function setLogsPath($path_logs){
-        $this->path_logs = $path_logs;
+    public function setPathLogError($path_log_error){
+        $this->path_log_error = $path_log_error;
+    }
+
+    public function getPathLogInfo(){
+        return $this->path_log_info;
+    }
+
+    public function setPathLogInfo($path_log_info){
+        $this->path_log_info = $path_log_info;
     }
 
     public function call($method, $request, $query = []){
@@ -91,10 +105,16 @@ Class ApiClient {
             $this->response = $this->client->createRequest($this->method, $this->url, ['query' => $this->query, 'headers' => $this->header]);
             $this->response = $this->client->send($this->response);
             $this->response = json_decode($this->response->getBody()->getContents());
+            if($this->log_info) {
+                $this->logger->RequestInformation($this->response);
+            }
+
             return $this->response;
         } catch (RequestException $e){
             $this->response = $this->error->StatusCodeHandling($e);
-            $this->logger->RequestException();
+            if($this->log_error) {
+                $this->logger->RequestException();
+            }
             return $this->response;
         }
 

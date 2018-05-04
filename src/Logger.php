@@ -20,10 +20,35 @@ Class Logger
         $this->api = $api;
     }
 
+    public function RequestInformation($context){
+        $path_logs = dirname(dirname(__FILE__)) . '/logs/the-brain-api.log';
+        if($this->api->getPathLogInfo()){
+            $path_logs = $this->api->getPathLogInfo();
+        }
+
+        $formatter  = new JsonFormatter();
+        $stream     = new StreamHandler($path_logs, MLogger::INFO);
+        $stream->setFormatter($formatter);
+
+        $log = new Mlogger('The Brain API');
+        $log->pushHandler($stream);
+
+        $response = [
+            'data' => [
+                'url'               => $this->api->getUrl(),
+                'method'            => $this->api->getMethod(),
+                'query'             => $this->api->getQuery(),
+                'header'            => $this->api->getHeader(),
+                'response'          => $context
+            ]
+        ];
+        $log->info('RequestInformation', [$response]);
+    }
+
     public function RequestException(){
         $path_logs = dirname(dirname(__FILE__)) . '/logs/the-brain-api.log';
-        if($this->api->getPathLogs()){
-            $path_logs = $this->api->getPathLogs();
+        if($this->api->getPathLogError()){
+            $path_logs = $this->api->getPathLogError();
         }
 
         $formatter  = new JsonFormatter();
