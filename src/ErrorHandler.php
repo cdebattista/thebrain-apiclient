@@ -46,6 +46,18 @@ Class ErrorHandler {
         return null;
     }
 
+    public function getClientIp(){
+        return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null;
+    }
+
+    public function getClientName(){
+        return isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : null;
+    }
+
+    public function getClientScript(){
+        return isset($_SERVER['SCRIPT_FILENAME']) ? $_SERVER['SCRIPT_FILENAME'] : null;
+    }
+
     public function debug(){
         if($this->error()){
             $response = [
@@ -57,7 +69,10 @@ Class ErrorHandler {
                     'message'           => $this->getMessage(),
                     'file'              => $this->getFile(),
                     'line'              => $this->getLine(),
-                    'status_code'       => $this->getStatusCode()
+                    'status_code'       => $this->getStatusCode(),
+                    'client_ip'         => $this->getClientIp(),
+                    'client_name'       => $this->getClientName(),
+                    'client_script'     => $this->getClientScript(),
                 ]
             ];
             $response = json_encode($response, JSON_FORCE_OBJECT|JSON_PRETTY_PRINT);
