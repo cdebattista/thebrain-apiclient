@@ -32,6 +32,20 @@ Class ErrorHandler {
         return false;
     }
 
+    public function getFile(){
+        if($this->error() && isset($this->api->getResponse()->data->file)){
+            return $this->api->getResponse()->data->file;
+        }
+        return null;
+    }
+
+    public function getLine(){
+        if($this->error() && isset($this->api->getResponse()->data->line)){
+            return $this->api->getResponse()->data->line;
+        }
+        return null;
+    }
+
     public function debug(){
         if($this->error()){
             $response = [
@@ -41,6 +55,8 @@ Class ErrorHandler {
                     'query'             => $this->api->getQuery(),
                     'header'            => $this->api->getHeader(),
                     'message'           => $this->getMessage(),
+                    'file'              => $this->getFile(),
+                    'line'              => $this->getLine(),
                     'status_code'       => $this->getStatusCode()
                 ]
             ];
@@ -59,6 +75,8 @@ Class ErrorHandler {
             $response = [
                 'data' => [
                     'message'       => $e->getMessage(),
+                    'file'          => $e->getFile(),
+                    'line'          => $e->getLine(),
                     'status_code'   => 500
                 ]
             ];

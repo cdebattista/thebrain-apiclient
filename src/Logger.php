@@ -64,16 +64,19 @@ Class Logger
     {
         switch ($options['transport']) {
             case 'smtp':
-                $transport = (new Swift_SmtpTransport($options['host'], $options['port']))
-                ->setUsername($options['username'])
-                ->setPassword($options['password']);
+                $transport = (new Swift_SmtpTransport($options['host'], $options['port'], isset($options['security']) ? $options['security'] : null))
+                    ->setUsername($options['username'])
+                    ->setPassword($options['password']);
+                if(isset($options['stream_options'])) {
+                    $transport->setStreamOptions($options['stream_options']);
+                }
                 break;
             case 'sendmail':
                 $transport = new Swift_SendmailTransport('/usr/sbin/sendmail -bs');
                 break;
         }
         $mailer 	    = new Swift_Mailer($transport);
-        $message 	    = (new Swift_Message('RequestException'))
+        $message 	    = (new Swift_Message($this->api->errorHandler()->getMessage()))
             ->setFrom($options['from'])
             ->setTo($options['to'])
             ->setBody(json_encode($this->api->errorHandler()->debug(), JSON_PRETTY_PRINT));
